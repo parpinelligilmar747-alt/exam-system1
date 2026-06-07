@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考核管理后台 · 自媒体 0→1 实习生考核系统 V2</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  line-height: 1.6;
+}
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 24px;
+  height: 60px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+.badge-admin {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #3b82f6;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+}
+.top-actions {
+  display: flex;
+  gap: 8px;
+}
+.nav-btn, .btn, .btn-small {
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s ease;
+}
+.nav-btn {
+  padding: 8px 14px;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+}
+.nav-btn:hover { background: #334155; color: #f8fafc; }
+.nav-btn.active { background: #2563eb; color: #fff; }
+.page {
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 24px;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+.stat-label {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 10px;
+}
+.stat-value {
+  font-size: 38px;
+  line-height: 1;
+  font-weight: 800;
+}
+.stat-sub {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #64748b;
+}
+.blue { color: #60a5fa; }
+.green { color: #34d399; }
+.orange { color: #fb923c; }
+.panel {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #334155;
+}
+.panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f8fafc;
+}
+.toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 16px 24px;
+  background: #111827;
+  border-bottom: 1px solid #1f2937;
+}
+.input, .select {
+  min-height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-size: 14px;
+  font-family: inherit;
+}
+.input {
+  min-width: 220px;
+}
+.input:focus, .select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.btn {
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: #2563eb;
+}
+.btn:hover { background: #1d4ed8; }
+.btn-secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+.btn-secondary:hover { background: #475569; }
+.btn-danger {
+  background: #dc2626;
+}
+.btn-danger:hover { background: #b91c1c; }
+.panel-body {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #1f2937;
+  text-align: left;
+  vertical-align: middle;
+  font-size: 14px;
+}
+th {
+  font-size: 12px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+tr:hover td {
+  background: #0f172a;
+}
+.chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+.chip-pending { background: rgba(96,165,250,.16); color: #93c5fd; }
+.chip-graded { background: rgba(52,211,153,.16); color: #86efac; }
+.chip-pass { background: rgba(52,211,153,.16); color: #86efac; }
+.chip-fail { background: rgba(248,113,113,.16); color: #fca5a5; }
+.chip-first { background: rgba(148,163,184,.16); color: #cbd5e1; }
+.chip-retry { background: rgba(251,146,60,.16); color: #fdba74; }
+.score-obj { color: #60a5fa; font-weight: 700; }
+.score-final { color: #34d399; font-weight: 800; }
+.btn-small {
+  padding: 6px 10px;
+  background: #334155;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 700;
+}
+.btn-small:hover { background: #475569; }
+.empty {
+  padding: 70px 24px;
+  text-align: center;
+  color: #64748b;
+}
+.empty .icon {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+.drawer-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.72);
+  display: flex;
+  justify-content: flex-end;
+  z-index: 60;
+}
+.drawer {
+  width: min(820px, 100vw);
+  height: 100%;
+  background: #1e293b;
+  border-left: 1px solid #334155;
+  overflow-y: auto;
+}
+.drawer-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+.drawer-body {
+  padding: 22px;
+}
+.drawer-close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: #334155;
+  color: #f8fafc;
+  cursor: pointer;
+}
+.meta-row {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #111827;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.summary-box {
+  background: #111827;
+  border-radius: 10px;
+  padding: 14px;
+  text-align: center;
+}
+.summary-box .label {
+  font-size: 12px;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+.summary-box .value {
+  font-size: 28px;
+  font-weight: 800;
+}
+.section-label {
+  margin: 20px 0 10px;
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.q-card {
+  margin-bottom: 12px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #111827;
+  border-left: 4px solid #334155;
+}
+.q-card.correct { border-left-color: #10b981; }
+.q-card.wrong { border-left-color: #ef4444; }
+.q-card.essay { border-left-color: #f59e0b; }
+.q-title {
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 10px;
+}
+.q-line {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #cbd5e1;
+}
+.answer-box, .ref-box, .criteria-box {
+  margin-top: 8px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.answer-box {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+.ref-box {
+  background: #0f2a1a;
+  border: 1px solid #166534;
+  color: #bbf7d0;
+}
+.criteria-box {
+  background: #2b2110;
+  border: 1px solid #92400e;
+  color: #fcd34d;
+}
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.score-input {
+  width: 90px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #475569;
+  background: #0f172a;
+  color: #f8fafc;
+  font-size: 15px;
+  font-weight: 700;
+}
+.drawer-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  gap: 12px;
+  padding: 16px 22px;
+  border-top: 1px solid #334155;
+  background: #1e293b;
+}
+.drawer-footer .input {
+  flex: 1;
+  min-width: 0;
+}
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%) translateY(24px);
+  opacity: 0;
+  pointer-events: none;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 10px 18px;
+  color: #e2e8f0;
+  transition: all .25s ease;
+  z-index: 80;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.success { border-color: #10b981; color: #86efac; }
+.toast.error { border-color: #ef4444; color: #fca5a5; }
+input[type="file"] { display: none; }
+@media (max-width: 760px) {
+  .topbar { padding: 0 14px; }
+  .page { padding: 16px 12px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .summary-grid { grid-template-columns: 1fr; }
+  .panel-header, .filter-bar { padding-left: 14px; padding-right: 14px; }
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">📊 考核管理后台 <span class="badge-admin">ADMIN</span></div>
+  <div class="top-actions">
+    <button class="nav-btn active" id="navSubmissions">📋 提交记录</button>
+    <button class="nav-btn" id="navAccuracy">📈 题目正确率</button>
+  </div>
+</div>
+
+<div class="page" id="app"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="importFileInput" accept=".json">
+
+<script>
+const JSONBIN_API_KEY = '$2a$10$kZCzlXlQ6UAC6oMZJ3/8LucvZU2ldnfhl9llKkZApuNl74cs6gQA6';
+const JSONBIN_BIN_ID = '6a241ec7da38895dfe90df6b';
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/' + JSONBIN_BIN_ID;
+const ADMIN_AUTH_KEY = 'exam_admin_auth_v2';
+const ADMIN_DB_CACHE_KEY = 'exam_admin_db_v2';
+const ADMIN_PASSWORD = 'houbo123';
+
+let currentPage = 'submissions';
+let db = { submissions: [] };
+let filterQuiz = '';
+let filterGraded = '';
+let filterUser = '';
+let openDrawerId = null;
+
+async function jbGet() {
+  try {
+    const r = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    if (!r.ok) return null;
+    const d = await r.json();
+    return d.record;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function jbSet(data) {
+  try {
+    const r = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY
+      },
+      body: JSON.stringify(data)
+    });
+    return r.ok;
+  } catch (e) {
+    return false;
+  }
+}
+
+function ensureAdminAccess() {
+  if (localStorage.getItem(ADMIN_AUTH_KEY) === 'ok') return true;
+  const pwd = window.prompt('请输入管理后台密码');
+  if (pwd === ADMIN_PASSWORD) {
+    localStorage.setItem(ADMIN_AUTH_KEY, 'ok');
+    return true;
+  }
+  document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f172a;color:#fff;font:16px/1.6 Segoe UI,Microsoft YaHei,sans-serif;">管理后台密码错误，无法进入。</div>';
+  return false;
+}
+
+function loadLocalAdminDB() {
+  try {
+    return JSON.parse(localStorage.getItem(ADMIN_DB_CACHE_KEY) || '{"submissions":[]}');
+  } catch (e) {
+    return { submissions: [] };
+  }
+}
+
+function saveLocalAdminDB(data) {
+  localStorage.setItem(ADMIN_DB_CACHE_KEY, JSON.stringify(data || { submissions: [] }));
+}
+
+function mergeSubmissionLists(primary, secondary) {
+  const map = new Map();
+  [...((primary && primary.submissions) || []), ...((secondary && secondary.submissions) || [])].forEach(item => {
+    if (!item || !item.id) return;
+    const prev = map.get(item.id) || {};
+    map.set(item.id, { ...prev, ...item });
+  });
+  return {
+    submissions: Array.from(map.values()).sort((a, b) => new Date(b.submittedAt || 0) - new Date(a.submittedAt || 0))
+  };
+}
+
+async function loadDB() {
+  if (!ensureAdminAccess()) throw new Error('admin-auth-required');
+  showToast('正在加载数据...', '');
+  const localDb = loadLocalAdminDB();
+  const remoteDb = await jbGet();
+  db = mergeSubmissionLists(localDb, remoteDb || { submissions: [] });
+  saveLocalAdminDB(db);
+}
+
+async function saveDB() {
+  if (!ensureAdminAccess()) return false;
+  saveLocalAdminDB(db);
+  return await jbSet(db);
+}
+
+function showToast(msg, type) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast' + (type ? ' ' + type : '');
+  setTimeout(() => el.classList.add('show'), 10);
+  setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '-';
+  return new Date(iso).toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function formatDuration(seconds) {
+  const sec = Math.max(0, Number(seconds) || 0);
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
+function getStatusChip(submission) {
+  if (!submission.graded) return '<span class="chip chip-pending">待批改</span>';
+  const passLine = submission.quizKey === 'finalExam' ? 80 : 90;
+  const passed = (submission.finalScore || 0) >= passLine;
+  return '<span class="chip ' + (passed ? 'chip-pass' : 'chip-fail') + '">' + (passed ? '已通过' : '未通过') + '</span>';
+}
+
+function getAttemptChip(submission) {
+  return '<span class="chip ' + (submission.attemptType === 'retry' ? 'chip-retry' : 'chip-first') + '">' + (submission.attemptType === 'retry' ? '补考' : '首次') + '</span>';
+}
+
+function calcStats() {
+  const total = db.submissions.length;
+  const graded = db.submissions.filter(s => s.graded).length;
+  const pending = total - graded;
+  const users = new Set(db.submissions.map(s => s.user)).size;
+  return { total, graded, pending, users };
+}
+
+function renderStats() {
+  const stats = calcStats();
+  return `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">总提交数</div>
+        <div class="stat-value blue">${stats.total}</div>
+        <div class="stat-sub">来自 ${stats.users} 位考生</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">待批改</div>
+        <div class="stat-value orange">${stats.pending}</div>
+        <div class="stat-sub">简答题尚未完成评分</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">已批改</div>
+        <div class="stat-value green">${stats.graded}</div>
+        <div class="stat-sub">已完成最终评分</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">参与人数</div>
+        <div class="stat-value">${stats.users}</div>
+        <div class="stat-sub">不同姓名的考生</div>
+      </div>
+    </div>
+  `;
+}
+
+function getFilteredSubmissions() {
+  return db.submissions.filter(s => {
+    if (filterQuiz && s.quizKey !== filterQuiz) return false;
+    if (filterGraded === 'pending' && s.graded) return false;
+    if (filterGraded === 'graded' && !s.graded) return false;
+    if (filterUser && !(s.user || '').includes(filterUser)) return false;
+    return true;
+  });
+}
+
+function renderToolbar() {
+  return `
+    <div class="toolbar">
+      <button class="btn btn-secondary" onclick="document.getElementById('importFileInput').click()">📂 导入 JSON</button>
+      <button class="btn" onclick="exportDB()">💾 导出数据库</button>
+    </div>
+  `;
+}
+
+function renderSubmissionsPage() {
+  const filtered = getFilteredSubmissions();
+  const filterHtml = `
+    <div class="filter-bar">
+      <select class="select" id="filterQuiz">
+        <option value="">所有考核</option>
+        <option value="quiz1">小考 1</option>
+        <option value="quiz2">小考 2</option>
+        <option value="quiz3">小考 3</option>
+        <option value="quiz4">小考 4</option>
+        <option value="finalExam">结业大考</option>
+      </select>
+      <select class="select" id="filterGraded">
+        <option value="">全部状态</option>
+        <option value="pending">待批改</option>
+        <option value="graded">已批改</option>
+      </select>
+      <input class="input" id="filterUser" placeholder="搜索姓名..." value="${escapeHtml(filterUser)}">
+    </div>
+  `;
+  if (filtered.length === 0) {
+    return `
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">📋 提交记录（0）</div>
+          ${renderToolbar()}
+        </div>
+        ${filterHtml}
+        <div class="empty">
+          <div class="icon">📭</div>
+          <h3>暂无提交记录</h3>
+          <p>同一浏览器里考生提交后会立即出现在这里，云端同步成功后其他设备也能看到。</p>
+        </div>
+      </div>
+    `;
+  }
+  const rows = filtered.map(s => `
+    <tr>
+      <td>${escapeHtml(s.user)}</td>
+      <td>${escapeHtml(s.quizTitle || s.quizKey)}</td>
+      <td>${getAttemptChip(s)}</td>
+      <td><span class="score-obj">${s.objectiveScore || 0} / ${s.maxObjective || 0}</span></td>
+      <td><span class="score-final">${s.graded ? (s.finalScore || 0) : (s.objectiveScore || 0)}</span></td>
+      <td>${getStatusChip(s)}</td>
+      <td>${fmtDate(s.submittedAt)}</td>
+      <td><button class="btn-small" onclick="openDrawer('${escapeHtml(s.id)}')">${s.graded ? '查看 / 改分' : '进入批改'}</button></td>
+    </tr>
+  `).join('');
+  return `
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">📋 提交记录（${filtered.length} / ${db.submissions.length}）</div>
+        ${renderToolbar()}
+      </div>
+      ${filterHtml}
+      <div class="panel-body">
+        <table>
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>考核名称</th>
+              <th>类型</th>
+              <th>客观题</th>
+              <th>当前总分</th>
+              <th>状态</th>
+              <th>提交时间</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderAccuracyPage() {
+  if (db.submissions.length === 0) {
+    return `
+      <div class="panel">
+        <div class="empty">
+          <div class="icon">📊</div>
+          <h3>暂无数据</h3>
+          <p>等考生提交后，这里会显示各题正确率。</p>
+        </div>
+      </div>
+    `;
+  }
+  const quizMeta = [
+    { key: 'quiz1', title: '小考 1：底层认知' },
+    { key: 'quiz2', title: '小考 2：工具 + 选题对标' },
+    { key: 'quiz3', title: '小考 3：账号规划 + 注册 + 上员工号 + 养号' },
+    { key: 'quiz4', title: '小考 4：产出 / 审核 / 发布 / 评论区 / 导流' },
+    { key: 'finalExam', title: '结业大考：综合 + 违规处理 + 投流 + 复盘' }
+  ];
+  const cards = quizMeta.map(quiz => {
+    const subs = db.submissions.filter(s => s.quizKey === quiz.key);
+    if (subs.length === 0) return '';
+    const stats = [];
+    subs.forEach(sub => {
+      (sub.detail && sub.detail.choice || []).forEach((item, idx) => {
+        const key = 'choice_' + idx;
+        if (!stats[key]) stats[key] = { text: item.q, total: 0, correct: 0 };
+        stats[key].total += 1;
+        if (item.userAns === item.correctAns) stats[key].correct += 1;
+      });
+      (sub.detail && sub.detail.fill || []).forEach((item, idx) => {
+        const key = 'fill_' + idx;
+        if (!stats[key]) stats[key] = { text: item.q, total: 0, correct: 0 };
+        stats[key].total += 1;
+        if (item.fullCorrect) stats[key].correct += 1;
+      });
+    });
+    const rows = Object.values(stats).map((item, idx) => {
+      const pct = item.total ? Math.round(item.correct * 100 / item.total) : 0;
+      const cls = pct >= 80 ? 'green' : pct >= 50 ? 'orange' : 'red';
+      return `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(item.text)}</td>
+          <td>${item.correct} / ${item.total}</td>
+          <td class="${cls}">${pct}%</td>
+        </tr>
+      `;
+    }).join('');
+    return `
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-header">
+          <div class="panel-title">${escapeHtml(quiz.title)}</div>
+          <div style="font-size:12px;color:#94a3b8;">共 ${subs.length} 份答卷</div>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead>
+              <tr><th>#</th><th>题目</th><th>正确 / 总数</th><th>正确率</th></tr>
+            </thead>
+            <tbody>${rows || '<tr><td colspan="4">暂无客观题统计</td></tr>'}</tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }).join('');
+  return cards || '<div class="panel"><div class="empty"><div class="icon">📊</div><h3>暂无数据</h3></div></div>';
+}
+
+async function render() {
+  try {
+    await loadDB();
+  } catch (e) {
+    return;
+  }
+  const app = document.getElementById('app');
+  app.innerHTML = renderStats() + (currentPage === 'submissions' ? renderSubmissionsPage() : renderAccuracyPage());
+  bindEvents();
+}
+
+function openDrawer(id) {
+  openDrawerId = id;
+  const s = db.submissions.find(x => x.id === id);
+  if (!s) return;
+  const objective = []
+    .concat((s.detail && s.detail.choice) || [])
+    .concat((s.detail && s.detail.fill) || []);
+  const objectiveHtml = objective.map(item => {
+    const isCorrect = item.userAns === item.correctAns || item.fullCorrect;
+    return `
+      <div class="q-card ${isCorrect ? 'correct' : 'wrong'}">
+        <div class="q-title">${escapeHtml(item.q)}</div>
+        <div class="q-line">你的答案：${escapeHtml(item.userAns || '未作答')}</div>
+        <div class="q-line">正确答案：${escapeHtml(item.correctAns || '')}</div>
+        ${item.exp ? '<div class="q-line">解析：' + escapeHtml(item.exp) + '</div>' : ''}
+      </div>
+    `;
+  }).join('');
+  const essays = (s.detail && s.detail.essay) || [];
+  const essayHtml = essays.map((item, idx) => {
+    const qid = item.qid || ('essay_' + idx);
+    const val = (s.essayScores && s.essayScores[qid]) || '';
+    return `
+      <div class="q-card essay">
+        <div class="q-title">${escapeHtml(item.q)}</div>
+        <div class="answer-box">${escapeHtml(item.userAns || '未作答')}</div>
+        ${item.refAns ? '<div class="ref-box">' + escapeHtml(item.refAns) + '</div>' : ''}
+        ${item.scoringCriteria ? '<div class="criteria-box">' + escapeHtml(item.scoringCriteria) + '</div>' : ''}
+        <div class="score-row">
+          <label>本题分数</label>
+          <input class="score-input essay-score-input" data-qid="${escapeHtml(qid)}" data-max="${item.scoreMax || 0}" value="${val}">
+          <span>满分 ${item.scoreMax || 0}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+  const mask = document.createElement('div');
+  mask.className = 'drawer-mask';
+  mask.id = 'drawerMask';
+  mask.innerHTML = `
+    <div class="drawer">
+      <div class="drawer-head">
+        <h3>${escapeHtml(s.user)} · ${escapeHtml(s.quizTitle || s.quizKey)}</h3>
+        <button class="drawer-close" onclick="closeDrawer()">×</button>
+      </div>
+      <div class="drawer-body">
+        <div class="meta-row">
+          <div>提交时间：${fmtDate(s.submittedAt)}</div>
+          <div>作答时长：${formatDuration(s.duration)}</div>
+          <div>答卷类型：${s.attemptType === 'retry' ? '补考' : '首次'}</div>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-box"><div class="label">客观题</div><div class="value blue">${s.objectiveScore || 0}</div></div>
+          <div class="summary-box"><div class="label">简答题</div><div class="value orange" id="essayTotalPreview">${s.essayTotal || 0}</div></div>
+          <div class="summary-box"><div class="label">最终总分</div><div class="value green" id="finalTotalPreview">${s.graded ? (s.finalScore || 0) : (s.objectiveScore || 0)}</div></div>
+        </div>
+        <div class="section-label">客观题明细</div>
+        ${objectiveHtml || '<div class="q-card">暂无客观题数据</div>'}
+        <div class="section-label">简答题批改</div>
+        ${essayHtml || '<div class="q-card">本试卷没有简答题。</div>'}
+      </div>
+      <div class="drawer-footer">
+        <input class="input" id="graderName" placeholder="批改人姓名" value="${escapeHtml(s.gradedBy || '')}">
+        <button class="btn" onclick="saveGrade('${escapeHtml(s.id)}')">保存批改结果</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(mask);
+  document.querySelectorAll('.essay-score-input').forEach(input => {
+    input.addEventListener('input', updateDrawerTotals);
+  });
+  updateDrawerTotals();
+}
+
+function updateDrawerTotals() {
+  const s = db.submissions.find(x => x.id === openDrawerId);
+  if (!s) return;
+  let essayTotal = 0;
+  document.querySelectorAll('.essay-score-input').forEach(input => {
+    const max = Number(input.dataset.max || 0);
+    const val = Math.max(0, Math.min(max, Number(input.value || 0)));
+    essayTotal += val;
+  });
+  const essayPreview = document.getElementById('essayTotalPreview');
+  const finalPreview = document.getElementById('finalTotalPreview');
+  if (essayPreview) essayPreview.textContent = essayTotal;
+  if (finalPreview) finalPreview.textContent = (s.objectiveScore || 0) + essayTotal;
+}
+
+async function saveGrade(id) {
+  const s = db.submissions.find(x => x.id === id);
+  if (!s) return;
+  const graderName = (document.getElementById('graderName').value || '').trim();
+  const essayScores = {};
+  let essayTotal = 0;
+  document.querySelectorAll('.essay-score-input').forEach(input => {
+    const max = Number(input.dataset.max || 0);
+    const val = Math.max(0, Math.min(max, Number(input.value || 0)));
+    essayScores[input.dataset.qid] = val;
+    essayTotal += val;
+  });
+  s.essayScores = essayScores;
+  s.essayTotal = essayTotal;
+  s.finalScore = (s.objectiveScore || 0) + essayTotal;
+  s.graded = true;
+  s.gradedBy = graderName;
+  s.gradedAt = new Date().toISOString();
+  const ok = await saveDB();
+  if (ok) showToast('批改结果已保存', 'success');
+  else showToast('已保存到本地后台，云端同步失败', 'error');
+  closeDrawer();
+  render();
+}
+
+function closeDrawer() {
+  const el = document.getElementById('drawerMask');
+  if (el) el.remove();
+  openDrawerId = null;
+}
+
+function exportDB() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '考核数据库_' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('importFileInput').addEventListener('change', async function(e) {
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async function(evt) {
+    try {
+      const imported = JSON.parse(evt.target.result);
+      if (!imported || !Array.isArray(imported.submissions)) throw new Error('bad-format');
+      db = mergeSubmissionLists(db, imported);
+      const ok = await saveDB();
+      showToast(ok ? '导入成功' : '导入成功，但云端同步失败', ok ? 'success' : 'error');
+      render();
+    } catch (err) {
+      showToast('导入失败：JSON 格式错误', 'error');
+    }
+  };
+  reader.readAsText(file);
+  this.value = '';
+});
+
+function bindEvents() {
+  const navSubmissions = document.getElementById('navSubmissions');
+  const navAccuracy = document.getElementById('navAccuracy');
+  navSubmissions.onclick = () => {
+    currentPage = 'submissions';
+    navSubmissions.classList.add('active');
+    navAccuracy.classList.remove('active');
+    render();
+  };
+  navAccuracy.onclick = () => {
+    currentPage = 'accuracy';
+    navAccuracy.classList.add('active');
+    navSubmissions.classList.remove('active');
+    render();
+  };
+  const fq = document.getElementById('filterQuiz');
+  if (fq) {
+    fq.value = filterQuiz;
+    fq.onchange = e => { filterQuiz = e.target.value; render(); };
+  }
+  const fg = document.getElementById('filterGraded');
+  if (fg) {
+    fg.value = filterGraded;
+    fg.onchange = e => { filterGraded = e.target.value; render(); };
+  }
+  const fu = document.getElementById('filterUser');
+  if (fu) {
+    fu.oninput = e => { filterUser = e.target.value.trim(); };
+    fu.onchange = () => render();
+    fu.onkeyup = e => { if (e.key === 'Enter') render(); };
+  }
+}
+
+if (ensureAdminAccess()) {
+  render();
+  setInterval(() => {
+    if (document.visibilityState === 'visible' && !openDrawerId) render();
+  }, 60000);
+}
+</script>
+</body>
+</html>
